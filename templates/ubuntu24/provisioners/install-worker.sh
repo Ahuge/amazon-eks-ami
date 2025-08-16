@@ -51,8 +51,11 @@ sudo apt update
 sudo apt upgrade -y
 
 # Install necessary packages
+sudo apt install -y python3-pip
+sudo pip3 install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-py3-latest.tar.gz --break-system-packages
+sudo ln -s /usr/local/init/ubuntu/cfn-hup /etc/init.d/cfn-hup
+
 sudo apt install -y \
-  aws-cfn-bootstrap \
   chrony \
   conntrack \
   ec2-instance-connect \
@@ -114,7 +117,7 @@ EOF
 
 # Disable weak ciphers
 echo -e "\nCiphers aes128-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com" | sudo tee -a /etc/ssh/sshd_config
-sudo systemctl restart sshd.service
+sudo systemctl restart ssh.service
 
 ################################################################################
 ### awscli #####################################################################
@@ -187,8 +190,13 @@ wget 'https://github.com/awslabs/soci-snapshotter/releases/download/v0.11.1/soci
 tar -xvf soci-snapshotter-0.11.1-linux-amd64.tar.gz
 sudo cp soci /usr/bin/soci
 sudo cp soci-snapshotter-grpc /usr/bin/soci-snapshotter-grpc
-sudo wget 'https://raw.githubusercontent.com/awslabs/soci-snapshotter/refs/heads/main/soci-snapshotter.service' -O /usr/local/lib/systemd/system/soci-snapshotter.service
+sudo wget -O /etc/systemd/system/soci-snapshotter.service 'https://raw.githubusercontent.com/awslabs/soci-snapshotter/refs/heads/main/soci-snapshotter.service'
 sudo systemctl enable soci-snapshotter
+
+wget https://github.com/containerd/nerdctl/releases/download/v2.1.3/nerdctl-2.1.3-linux-amd64.tar.gz
+tar zxvf nerdctl-*-linux-amd64.tar.gz
+sudo mv nerdctl /usr/local/bin/
+nerdctl --version
 
 ################################################################################
 ### SSM Agent ##################################################################
